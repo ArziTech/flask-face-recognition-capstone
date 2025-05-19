@@ -74,6 +74,6 @@ class FacePredictor:
             prediction = self.model.predict(processed_img)
             predicted_class = int(np.argmax(prediction, axis=1)[0])
 
-            return prediction.tolist()
+            return prediction[0].tolist()
         except Exception as e:
             return {"error": str(e)}
