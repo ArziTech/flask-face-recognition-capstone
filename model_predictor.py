@@ -66,3 +66,14 @@ class FacePredictor:
             }
         except Exception as e:
             return {"error": str(e)}
+
+    def embed(self, image_file):
+        """Main prediction method"""
+        try:
+            processed_img = self.preprocess_image(image_file)
+            prediction = self.model.predict(processed_img)
+            predicted_class = int(np.argmax(prediction, axis=1)[0])
+
+            return prediction.tolist()
+        except Exception as e:
+            return {"error": str(e)}
