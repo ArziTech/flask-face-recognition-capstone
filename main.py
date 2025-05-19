@@ -26,6 +26,16 @@ def update_classes():
     predictor.classes = new_classes
     return jsonify({"message": "Classes updated", "new_classes": new_classes})
 
+@app.route('/embed', methods=['POST'])
+def handle_embed():
+    if 'image' not in request.files:
+        return jsonify({"error": "No image data provided"}), 400
+    
+    image_file = request.files['image']
+    result = predictor.embed(image_file)
+    
+    return jsonify(result)
+
 @app.route('/', methods=['POST'])
 def handle_prediction():
     if 'image' not in request.files:
