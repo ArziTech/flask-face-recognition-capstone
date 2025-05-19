@@ -1,0 +1,7 @@
+Flask==2.0.1
+opencv-python
+pillow
+tensorflow==2.19.0
+keras==3.9.2
+numpy
+Werkzeug==2.0.2
