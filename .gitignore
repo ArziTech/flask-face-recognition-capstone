@@ -1,1 +1,3 @@
 **.env
+app/static/model/arcface_model.h5
+**arcface_model.h5
