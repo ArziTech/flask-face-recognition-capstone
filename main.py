@@ -36,6 +36,11 @@ def handle_embed():
     
     return jsonify(result)
 
+@app.route('/something')
+def handle_something():
+    return "something"
+
+
 @app.route('/', methods=['POST'])
 def handle_prediction():
     if 'image' not in request.files:
