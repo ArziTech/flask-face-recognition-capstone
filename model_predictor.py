@@ -35,17 +35,39 @@ class FacePredictor:
         else:
             raise ValueError("Format classes_config tidak valid")
 
-    def preprocess_image(self, image_file):
+    def preprocess_image(self, image_file, face_pos=(50, 50), target_size=(112, 112)):
         """Convert uploaded file to preprocessed numpy array"""
+        
         img = Image.open(image_file.stream)
         img = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
         
-        if img is None:
-            raise ValueError("Invalid image file")
-            
-        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        img = cv2.resize(img, (112, 112))
-        return np.expand_dims(img, axis=0) / 255.0
+        # Get image dimensions
+        height, width = img.shape[:2]  # More intuitive unpacking
+        crop_width, crop_height = target_size
+
+        # Validate face position
+        x0, y0 = face_pos
+        if x0 < 0 or y0 < 0:
+            raise ValueError("Face position cannot be negative")
+        
+        # Calculate crop boundaries with safety checks
+        x1 = min(x0 + crop_width, width)  # Prevent exceeding image width
+        y1 = min(y0 + crop_height, height)  # Prevent exceeding image height
+        
+        # Adjust starting position if crop would exceed boundaries
+        if x1 - x0 < crop_width:
+            x0 = max(0, x1 - crop_width)
+        if y1 - y0 < crop_height:
+            y0 = max(0, y1 - crop_height)
+
+        # Perform the crop
+        cropped = img[y0:y1, x0:x1]  # Note: OpenCV uses row-major (y,x) ordering
+        
+        # Resize if the crop was smaller than target (edge case)
+        if cropped.shape[0] != crop_height or cropped.shape[1] != crop_width:
+            cropped = cv2.resize(cropped, target_size, interpolation=cv2.INTER_AREA)
+
+        return np.expand_dims(cropped, axis=0) / 255.0
     
     def predict(self, image_file):
         """Main prediction method"""
@@ -67,13 +89,13 @@ class FacePredictor:
         except Exception as e:
             return {"error": str(e)}
 
-    def embed(self, image_file):
+    def embed(self, image_file, face_pos=(50, 50)):
         """Main prediction method"""
         try:
-            processed_img = self.preprocess_image(image_file)
+            processed_img = self.preprocess_image(image_file, face_pos)
             prediction = self.model.predict(processed_img)
             predicted_class = int(np.argmax(prediction, axis=1)[0])
 
             return prediction[0].tolist()
         except Exception as e:
-            return {"error": str(e)}
+            return {"error here": str(e)}

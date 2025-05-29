@@ -28,11 +28,20 @@ def update_classes():
 
 @app.route('/embed', methods=['POST'])
 def handle_embed():
+    print("Method:", request.method)
+    print("Headers:", dict(request.headers))
+    print("Args:", request.args)  # Query parameters
+    print("Form:", request.files)  # Form data
+    print("Form:", request.form)  # Form data
+    print("JSON:", request.get_json(silent=True))
     if 'image' not in request.files:
         return jsonify({"error": "No image data provided"}), 400
     
+    x = int(request.form.get('x'))
+    y = int(request.form.get('y'))
+    
     image_file = request.files['image']
-    result = predictor.embed(image_file)
+    result = predictor.embed(image_file, face_pos=(x, y))
     
     return jsonify(result)
 
